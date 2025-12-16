@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "61044104475",
+    "firebase_url": "https://smartbrankas-9d384-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "smartbrankas-9d384",
+    "storage_bucket": "smartbrankas-9d384.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:61044104475:android:11e68c149bae32d4a807be",
+        "android_client_info": {
+          "package_name": "com.example.sistembrankas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMd8G0PtEZtdiU5wCmNq4x6VOdHSstheM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
