@@ -14,8 +14,12 @@ class SettingsContent extends StatelessWidget {
         title: const Text('Konfirmasi Keluar'),
         content: const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Batal')),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Keluar')),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Batal')),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Keluar')),
         ],
       ),
     );
@@ -46,7 +50,11 @@ class SettingsContent extends StatelessWidget {
                 children: [
                   Icon(Icons.settings_rounded, color: cs.onSurface),
                   const SizedBox(width: 12),
-                  Text('Pengaturan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: cs.onSurface)),
+                  Text('Pengaturan',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface)),
                 ],
               ),
             ),
@@ -74,7 +82,8 @@ class SettingsContent extends StatelessWidget {
                         if (email != null) ...[
                           const SizedBox(height: 6),
                           Text('Login sebagai: $email',
-                              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                              style: TextStyle(
+                                  color: cs.onSurfaceVariant, fontSize: 12)),
                         ],
                       ],
                     ),
@@ -100,7 +109,8 @@ class SettingsContent extends StatelessWidget {
 
             // Footer small
             const Spacer(),
-            Text('© 2025 Smart Brankas', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+            Text('© 2025 Smart Brankas',
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
             const SizedBox(height: 12),
           ],
         ),

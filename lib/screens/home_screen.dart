@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openStream() {
     final url = cameraStream.isNotEmpty
         ? cameraStream
-        : "http://192.168.23.172:80/stream";
+        : "http://192.168.194.170:80/stream";
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => LiveStreamScreen(streamUrl: url)),
     );

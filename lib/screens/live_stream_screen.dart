@@ -40,9 +40,11 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
               radius: 16,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: ListTile(
-                leading: Icon(Icons.videocam_rounded, color: colorScheme.primary),
+                leading:
+                    Icon(Icons.videocam_rounded, color: colorScheme.primary),
                 title: const Text('Live Cam'),
-                subtitle: Text(widget.streamUrl, overflow: TextOverflow.ellipsis),
+                subtitle:
+                    Text(widget.streamUrl, overflow: TextOverflow.ellipsis),
               ),
             ),
           ),

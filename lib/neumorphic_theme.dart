@@ -254,11 +254,20 @@ class _NeumorphicButtonState extends State<NeumorphicButton> {
           boxShadow: _pressed
               ? [
                   // pressed: softer reverse shadow
-                  BoxShadow(color: darkShadowColor.withOpacity(0.08), offset: const Offset(2, 2), blurRadius: 6),
+                  BoxShadow(
+                      color: darkShadowColor.withOpacity(0.08),
+                      offset: const Offset(2, 2),
+                      blurRadius: 6),
                 ]
               : [
-                  BoxShadow(color: lightShadowColor, offset: const Offset(-6, -6), blurRadius: 14),
-                  BoxShadow(color: darkShadowColor.withOpacity(isDark ? 0.45 : 0.12), offset: const Offset(6, 6), blurRadius: 14),
+                  BoxShadow(
+                      color: lightShadowColor,
+                      offset: const Offset(-6, -6),
+                      blurRadius: 14),
+                  BoxShadow(
+                      color: darkShadowColor.withOpacity(isDark ? 0.45 : 0.12),
+                      offset: const Offset(6, 6),
+                      blurRadius: 14),
                 ],
         ),
         child: DefaultTextStyle(
