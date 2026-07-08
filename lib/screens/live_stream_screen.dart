@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
-import '../neumorphic_theme.dart';
+import '../components/info_card.dart';
 
 class LiveStreamScreen extends StatefulWidget {
   final String streamUrl;
@@ -32,26 +32,16 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
       body: Column(
         children: [
           const SizedBox(height: 16),
-
-          // 🔵 Info Stream (neumorphic)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: NeumorphicContainer(
+            child: InfoCard(
+              leading: Icon(Icons.videocam_rounded, color: colorScheme.primary),
+              title: 'Live Cam',
+              subtitle: widget.streamUrl,
               radius: 16,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: ListTile(
-                leading:
-                    Icon(Icons.videocam_rounded, color: colorScheme.primary),
-                title: const Text('Live Cam'),
-                subtitle:
-                    Text(widget.streamUrl, overflow: TextOverflow.ellipsis),
-              ),
             ),
           ),
-
           const SizedBox(height: 16),
-
-          // 🎥 Area Stream
           Expanded(
             child: Center(
               child: AnimatedSwitcher(
@@ -84,10 +74,7 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 16),
-
-          // 🧭 Navigasi Bawah
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Row(

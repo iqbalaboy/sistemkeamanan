@@ -6,6 +6,11 @@ import '../services/firebase_service.dart';
 import 'package:intl/intl.dart';
 import '../neumorphic_theme.dart';
 import '../widgets/status_header.dart';
+import '../components/welcome_header.dart';
+import '../components/feature_card.dart';
+import '../components/history_item.dart';
+import '../components/empty_state.dart';
+import '../components/bottom_nav.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,29 +26,26 @@ class _HomeScreenState extends State<HomeScreen> {
   String cameraStream = "";
   int _selectedIndex = 0;
 
-  // Four main feature cards tailored for Smart Brankas
-  final List<_FeatureCardData> _features = const [
-    _FeatureCardData(
+  final List<FeatureCardData> _features = const [
+    FeatureCardData(
         id: 'pin', title: 'Ubah PIN', subtitle: '', icon: Icons.lock_rounded),
-    _FeatureCardData(
+    FeatureCardData(
         id: 'history',
         title: 'Riwayat',
         subtitle: '',
         icon: Icons.history_rounded),
-    _FeatureCardData(
+    FeatureCardData(
         id: 'livestream',
         title: 'Live Stream',
         subtitle: '',
         icon: Icons.videocam_rounded),
-    _FeatureCardData(
+    FeatureCardData(
         id: 'status', title: 'Status', subtitle: '', icon: Icons.info_outline),
   ];
 
   @override
   void initState() {
     super.initState();
-
-    // 🔴 Listener status brankas
     service.currentStatusQuery().onValue.listen((event) {
       final val = event.snapshot.value;
       if (val != null) {
@@ -58,18 +60,13 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
 
-    // 🟢 Listener riwayat aktivitas
     service.historyQuery().onValue.listen((event) {
       final data = event.snapshot.value;
-      debugPrint('🔥 History listener triggered: $data');
-
       if (!mounted) return;
-
       if (data == null) {
         setState(() => historyList = []);
         return;
       }
-
       if (data is Map) {
         final map = Map<String, dynamic>.from(data);
         final entries = map.entries.map((e) {
@@ -123,7 +120,6 @@ class _HomeScreenState extends State<HomeScreen> {
       final dt = DateTime.parse(s);
       return DateFormat('yyyy-MM-dd HH:mm').format(dt);
     } catch (_) {
-      // try numeric timestamp (seconds or ms)
       try {
         final n = int.parse(t.toString());
         DateTime dt;
@@ -142,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openStream() {
     final url = cameraStream.isNotEmpty
         ? cameraStream
-        : "http://192.168.194.170:80/stream";
+        : "http://192.168.234.170:80/stream";
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => LiveStreamScreen(streamUrl: url)),
     );
@@ -216,22 +212,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Expanded(
                       child: historyList.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.history_rounded,
-                                      size: 64,
-                                      color:
-                                          cs.onSurfaceVariant.withOpacity(0.3)),
-                                  const SizedBox(height: 8),
-                                  Text('Belum ada riwayat',
-                                      style: TextStyle(
-                                          color: cs.onSurfaceVariant,
-                                          fontSize: 14))
-                                ],
-                              ),
-                            )
+                          ? const EmptyState(
+                              icon: Icons.history_rounded,
+                              message: 'Belum ada riwayat')
                           : ListView.builder(
                               controller: controller,
                               padding: const EdgeInsets.symmetric(
@@ -247,48 +230,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     .toString()
                                     .toLowerCase()
                                     .contains('berhasil');
-                                final color =
-                                    isSuccess ? Colors.green : Colors.red;
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: cs.background,
-                                    borderRadius: BorderRadius.circular(14),
-                                    boxShadow: neumorphicShadows(
-                                      lightShadow: Colors.white,
-                                      darkShadow: cs.primary.withOpacity(0.85),
-                                      blur: 12,
-                                      offset: 6,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                          isSuccess
-                                              ? Icons.check_circle_rounded
-                                              : Icons.error_rounded,
-                                          color: color),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(action.toString(),
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: cs.onSurface)),
-                                            const SizedBox(height: 4),
-                                            Text(time,
-                                                style: TextStyle(
-                                                    color: cs.onSurfaceVariant,
-                                                    fontSize: 12)),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                                return HistoryItem(
+                                  action: action.toString(),
+                                  time: time,
+                                  isSuccess: isSuccess,
                                 );
                               },
                             ),
@@ -380,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final dt = DateTime.parse(t);
       return DateFormat('yyyy-MM-dd HH:mm:ss').format(dt);
     } catch (_) {
-      return t ?? '-';
+      return t;
     }
   }
 
@@ -398,8 +343,6 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'status':
         _showStatusDialog();
         break;
-      default:
-        break;
     }
   }
 
@@ -413,18 +356,10 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           const SizedBox(height: 16),
-
-          // Welcome (big) box
-          const _LargeHeader(),
-
+          const WelcomeHeader(),
           const SizedBox(height: 12),
-
-          // Separated status header placed under the welcome box
           StatusHeader(isOpen: isOpen, lastUpdated: lastUpdated),
-
           const SizedBox(height: 18),
-
-          // Section header (Lihat Semua removed)
           Align(
             alignment: Alignment.centerLeft,
             child: Text('Fitur',
@@ -432,10 +367,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: cs.onBackground.withOpacity(0.85),
                     fontWeight: FontWeight.w600)),
           ),
-
           const SizedBox(height: 8),
-
-          // 2x2 grid of feature cards
           Expanded(
             child: LayoutBuilder(builder: (context, constraints) {
               final itemWidth = (constraints.maxWidth - 12) / 2;
@@ -445,67 +377,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   runSpacing: 12,
                   children: List.generate(_features.length, (index) {
                     final f = _features[index];
-                    return GestureDetector(
+                    return FeatureCard(
+                      data: f,
+                      width: itemWidth,
                       onTap: () => _onFeatureTap(f.id),
-                      child: SizedBox(
-                        width: itemWidth,
-                        child: NeumorphicContainer(
-                          radius: 20,
-                          padding: const EdgeInsets.all(14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // small dark rounded square with icon (floating)
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: cs.surface,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: neumorphicShadows(
-                                    lightShadow: Colors.white,
-                                    darkShadow: cs.primary.withOpacity(0.85),
-                                    blur: 10,
-                                    offset: 4,
-                                    opacityDark: 0.12,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: cs.primary,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Icon(f.icon,
-                                        color: Colors.white, size: 18),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(f.title,
-                                  style: TextStyle(
-                                      color: cs.onSurface,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 15)),
-                              const SizedBox(height: 6),
-                              Text(f.subtitle,
-                                  style: TextStyle(
-                                    color: cs.onSurfaceVariant,
-                                    fontSize: 12,
-                                  )),
-                            ],
-                          ),
-                        ),
-                      ),
                     );
                   }),
                 ),
               );
             }),
           ),
-
           const SizedBox(height: 100),
         ],
       ),
@@ -519,16 +400,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.transparent,
-      // keep a minimal app bar area (transparent) so status bar icons are visible
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        toolbarHeight: 0, // hide default toolbar area, header is in body now
+        toolbarHeight: 0,
         systemOverlayStyle: Theme.of(context).appBarTheme.systemOverlayStyle,
       ),
       body: Stack(
         children: [
-          // Background gradient
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -541,8 +420,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
-          // Main content
           SafeArea(
             child: Column(
               children: [
@@ -558,265 +435,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-
-          // Bottom floating navbar with center FAB (unchanged)
-          Positioned(
-            left: 20,
-            right: 20,
-            bottom: 20,
-            child: Container(
-              height: 70,
-              decoration: BoxDecoration(
-                color: cs.surface,
-                borderRadius: BorderRadius.circular(35),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                  BoxShadow(
-                    color: Colors.white.withOpacity(0.8),
-                    blurRadius: 8,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  // Nav items
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _NavItemCustom(
-                          icon: Icons.home_outlined,
-                          activeIcon: Icons.home_rounded,
-                          label: 'Beranda',
-                          selected: _selectedIndex == 0,
-                          onTap: () => setState(() => _selectedIndex = 0),
-                        ),
-                        const SizedBox(width: 56),
-                        _NavItemCustom(
-                          icon: Icons.settings_outlined,
-                          activeIcon: Icons.settings_rounded,
-                          label: 'Pengaturan',
-                          selected: _selectedIndex == 1,
-                          onTap: () => setState(() => _selectedIndex = 1),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Center FAB for Live Stream
-                  Positioned(
-                    top: -20,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: GestureDetector(
-                        onTap: _openStream,
-                        child: Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                cs.primary,
-                                cs.primary.withOpacity(0.8),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: cs.primary.withOpacity(0.4),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.videocam_rounded,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          BottomNavBar(
+            selectedIndex: _selectedIndex,
+            onItemTapped: (i) => setState(() => _selectedIndex = i),
+            onFabTap: _openStream,
           ),
         ],
       ),
     );
   }
-}
-
-/// Large header widget focused on layout (no clock)
-/// This widget only renders the Welcome / Selamat Datang box.
-class _LargeHeader extends StatelessWidget {
-  const _LargeHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Title row
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: cs.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(Icons.vpn_key_rounded,
-                  color: cs.onPrimaryContainer, size: 18),
-            ),
-            const SizedBox(width: 10),
-            Text('Smart Brankas',
-                style: TextStyle(
-                    color: cs.onBackground,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold)),
-          ],
-        ),
-
-        const SizedBox(height: 12),
-
-        // Welcome card
-        Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(minHeight: 150),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                const Color(0xFF4A6CF7),
-                const Color(0xFF3A57D8),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.14),
-                blurRadius: 16,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Row(
-            children: [
-              // left: welcome text
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Selamat Datang!',
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.98),
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    Text('Kelola brankas Anda dengan mudah',
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.95),
-                            fontSize: 12)),
-                  ],
-                ),
-              ),
-
-              // right: decorative icon box
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(Icons.lock_outline_rounded,
-                    color: Colors.white, size: 48),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Custom nav item that matches neumorphic style and app features
-class _NavItemCustom extends StatelessWidget {
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _NavItemCustom({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              selected ? activeIcon : icon,
-              color:
-                  selected ? cs.primary : cs.onSurfaceVariant.withOpacity(0.6),
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: selected
-                    ? cs.primary
-                    : cs.onSurfaceVariant.withOpacity(0.6),
-                fontSize: 11,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FeatureCardData {
-  final String id;
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  const _FeatureCardData({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-  });
 }

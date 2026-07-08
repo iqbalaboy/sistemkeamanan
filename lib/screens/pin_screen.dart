@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/firebase_service.dart';
 import '../neumorphic_theme.dart';
+import '../components/neumorphic_text_field.dart';
+import '../components/loading_button.dart';
 
 class PinScreen extends StatefulWidget {
   const PinScreen({super.key});
@@ -20,7 +22,6 @@ class _PinScreenState extends State<PinScreen> {
   void initState() {
     super.initState();
     _setupPinListener();
-    // don't load or display raw PIN for security
   }
 
   @override
@@ -32,10 +33,8 @@ class _PinScreenState extends State<PinScreen> {
   }
 
   void _setupPinListener() {
-    // Listen for PIN updates but DO NOT expose PIN value in UI or logs.
     _pinSubscription = FirebaseService.instance.getPinStream().listen((_) {
       if (!mounted) return;
-      // Display a generic notification that PIN changed (no value)
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('PIN diperbarui dari perangkat'),
       ));
@@ -52,12 +51,10 @@ class _PinScreenState extends State<PinScreen> {
       _show('Isi PIN lama & baru');
       return;
     }
-
     if (newPin.length < 4 || newPin.length > 8) {
       _show('PIN harus 4-8 digit angka');
       return;
     }
-
     if (!RegExp(r'^[0-9]+$').hasMatch(newPin)) {
       _show('PIN hanya boleh mengandung angka');
       return;
@@ -66,7 +63,6 @@ class _PinScreenState extends State<PinScreen> {
     setState(() => _loading = true);
 
     try {
-      // Use getPin() (existing service) to verify old PIN locally.
       final stored = await FirebaseService.instance.getPin();
       if (stored != null && stored.isNotEmpty && stored != oldPin) {
         _show('PIN lama salah');
@@ -74,18 +70,13 @@ class _PinScreenState extends State<PinScreen> {
         return;
       }
 
-      // setPin should handle secure storage (server-side hashing ideally)
       await FirebaseService.instance.setPin(newPin);
-
       if (!mounted) return;
 
       _show('PIN berhasil diubah!');
-
       _oldCtrl.clear();
       _newCtrl.clear();
-
       await Future.delayed(const Duration(milliseconds: 1200));
-
       Navigator.of(context).pop(true);
     } catch (e) {
       _show('Gagal menyimpan PIN');
@@ -118,8 +109,6 @@ class _PinScreenState extends State<PinScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 32),
-
-              // Header card (neumorphic)
               NeumorphicContainer(
                 radius: 20,
                 padding:
@@ -129,78 +118,53 @@ class _PinScreenState extends State<PinScreen> {
                     Icon(Icons.password_rounded,
                         size: 90, color: colorScheme.primary),
                     const SizedBox(height: 16),
-                    Text(
-                      'Ubah PIN Brankas',
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    Text('Ubah PIN Brankas',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurface,
-                              ),
-                    ),
+                                color: colorScheme.onSurface)),
                   ],
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              // Input fields inside neumorphic container
               NeumorphicContainer(
                 radius: 16,
                 padding: const EdgeInsets.all(14),
                 child: Column(
                   children: [
-                    TextField(
+                    NeumorphicTextField(
                       controller: _oldCtrl,
+                      labelText: 'PIN Lama',
+                      prefixIcon: Icons.lock_outline_rounded,
                       keyboardType: TextInputType.number,
                       obscureText: true,
                       maxLength: 8,
-                      decoration: InputDecoration(
-                        labelText: 'PIN Lama',
-                        prefixIcon: const Icon(Icons.lock_outline_rounded),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        counterText: '',
-                      ),
+                      borderRadius: 12,
                     ),
                     const SizedBox(height: 12),
-                    TextField(
+                    NeumorphicTextField(
                       controller: _newCtrl,
+                      labelText: 'PIN Baru (4-8 digit angka)',
+                      prefixIcon: Icons.fingerprint_rounded,
                       keyboardType: TextInputType.number,
                       obscureText: true,
                       maxLength: 8,
-                      decoration: InputDecoration(
-                        labelText: 'PIN Baru (4-8 digit angka)',
-                        prefixIcon: const Icon(Icons.fingerprint_rounded),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        counterText: '',
-                      ),
+                      borderRadius: 12,
                     ),
                     const SizedBox(height: 18),
-                    SizedBox(
-                      width: double.infinity,
+                    LoadingButton(
+                      loading: _loading,
+                      onPressed: _changePin,
+                      label: 'Simpan PIN',
+                      loadingLabel: 'Menyimpan...',
+                      icon: Icons.save_rounded,
                       height: 52,
-                      child: FilledButton.icon(
-                        icon: _loading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(Icons.save_rounded),
-                        label: Text(_loading ? 'Menyimpan...' : 'Simpan PIN'),
-                        onPressed: _loading ? null : _changePin,
-                      ),
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 24),
               Text(
                 'Perubahan PIN akan langsung tersinkronisasi dengan brankas.',

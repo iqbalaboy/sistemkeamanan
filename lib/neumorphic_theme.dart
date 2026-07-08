@@ -14,7 +14,8 @@ class AppTheme {
   static const Color darkBackground = Color(0xFF0B1220);
   static const Color darkSurface = Color(0xFF0F1724);
   static const Color darkInnerSurface = Color(0xFF111827);
-  static const Color darkOnBackground = Color(0xFFE6F0FF); // subtle light tone for titles
+  static const Color darkOnBackground =
+      Color(0xFFE6F0FF); // subtle light tone for titles
   static const Color darkOnSurface = Color(0xFFE6EEF9);
 
   static ThemeData neumorphicBlue() {
@@ -48,15 +49,18 @@ class AppTheme {
         systemOverlayStyle: null,
       ),
       textTheme: TextTheme(
-        titleLarge: TextStyle(color: cs.onBackground, fontWeight: FontWeight.bold),
-        headlineSmall: TextStyle(color: cs.onBackground, fontWeight: FontWeight.bold),
+        titleLarge:
+            TextStyle(color: cs.onBackground, fontWeight: FontWeight.bold),
+        headlineSmall:
+            TextStyle(color: cs.onBackground, fontWeight: FontWeight.bold),
         bodyMedium: TextStyle(color: cs.onBackground),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryBlue,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
           elevation: 0,
         ),
@@ -98,15 +102,18 @@ class AppTheme {
         ),
       ),
       textTheme: TextTheme(
-        titleLarge: TextStyle(color: cs.onBackground, fontWeight: FontWeight.bold),
-        headlineSmall: TextStyle(color: cs.onBackground, fontWeight: FontWeight.bold),
+        titleLarge:
+            TextStyle(color: cs.onBackground, fontWeight: FontWeight.bold),
+        headlineSmall:
+            TextStyle(color: cs.onBackground, fontWeight: FontWeight.bold),
         bodyMedium: TextStyle(color: cs.onBackground),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryBlue,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
           elevation: 0,
         ),
@@ -173,17 +180,31 @@ class NeumorphicContainer extends StatelessWidget {
     // adapt shadow colors for light/dark mode to keep contrast comfortable
     final double offsetVal = 6.0 * depth;
     final double blurVal = 18.0 * depth;
-    final Color lightShadowColor = isDark ? Colors.white.withOpacity(0.03) : Colors.white.withOpacity(0.9);
-    final Color darkShadowColor = isDark ? Colors.black.withOpacity(0.6) : Colors.black.withOpacity(0.12);
+    final Color lightShadowColor =
+        isDark ? Colors.white.withOpacity(0.03) : Colors.white.withOpacity(0.9);
+    final Color darkShadowColor =
+        isDark ? Colors.black.withOpacity(0.6) : Colors.black.withOpacity(0.12);
 
     final List<BoxShadow> shadows = inset
         ? [
-            BoxShadow(color: darkShadowColor.withOpacity(0.06), offset: Offset(-offsetVal, -offsetVal), blurRadius: blurVal),
-            BoxShadow(color: lightShadowColor.withOpacity(0.9), offset: Offset(offsetVal, offsetVal), blurRadius: blurVal),
+            BoxShadow(
+                color: darkShadowColor.withOpacity(0.06),
+                offset: Offset(-offsetVal, -offsetVal),
+                blurRadius: blurVal),
+            BoxShadow(
+                color: lightShadowColor.withOpacity(0.9),
+                offset: Offset(offsetVal, offsetVal),
+                blurRadius: blurVal),
           ]
         : [
-            BoxShadow(color: lightShadowColor, offset: Offset(-offsetVal, -offsetVal), blurRadius: blurVal),
-            BoxShadow(color: darkShadowColor.withOpacity(isDark ? 0.45 : 0.12), offset: Offset(offsetVal, offsetVal), blurRadius: blurVal),
+            BoxShadow(
+                color: lightShadowColor,
+                offset: Offset(-offsetVal, -offsetVal),
+                blurRadius: blurVal),
+            BoxShadow(
+                color: darkShadowColor.withOpacity(isDark ? 0.45 : 0.12),
+                offset: Offset(offsetVal, offsetVal),
+                blurRadius: blurVal),
           ];
 
     return Container(
@@ -234,8 +255,11 @@ class _NeumorphicButtonState extends State<NeumorphicButton> {
     final isDark = theme.brightness == Brightness.dark;
     final bg = widget.color ?? theme.colorScheme.primary;
 
-    final lightShadowColor = isDark ? Colors.white.withOpacity(0.03) : Colors.white.withOpacity(0.9);
-    final darkShadowColor = isDark ? Colors.black.withOpacity(0.6) : theme.colorScheme.primary.withOpacity(0.85);
+    final lightShadowColor =
+        isDark ? Colors.white.withOpacity(0.03) : Colors.white.withOpacity(0.9);
+    final darkShadowColor = isDark
+        ? Colors.black.withOpacity(0.6)
+        : theme.colorScheme.primary.withOpacity(0.85);
 
     return GestureDetector(
       onTapDown: (_) => _setPressed(true),

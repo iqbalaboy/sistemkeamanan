@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/firebase_service.dart';
 import '../neumorphic_theme.dart';
+import '../components/neumorphic_text_field.dart';
+import '../components/loading_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>(); // For validation
+  final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _loading = false;
@@ -31,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
     _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.3), // More pronounced slide
+      begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic),
@@ -50,13 +52,9 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
-    final email = _emailCtrl.text.trim();
-    final pass = _passCtrl.text.trim();
-
     try {
-      // HANYA LOGIN
-      await FirebaseService.instance.signIn(email, pass);
-
+      await FirebaseService.instance
+          .signIn(_emailCtrl.text.trim(), _passCtrl.text.trim());
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/home');
     } on FirebaseAuthException catch (e) {
@@ -84,9 +82,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
@@ -108,7 +104,6 @@ class _LoginScreenState extends State<LoginScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo and title (neumorphic card)
                       NeumorphicContainer(
                         radius: 28,
                         padding: const EdgeInsets.symmetric(
@@ -118,58 +113,39 @@ class _LoginScreenState extends State<LoginScreen>
                             CircleAvatar(
                               radius: 48,
                               backgroundColor: colorScheme.primaryContainer,
-                              child: Icon(
-                                Icons.lock_outline_rounded,
-                                size: 48,
-                                color: colorScheme.onPrimaryContainer,
-                              ),
+                              child: Icon(Icons.lock_outline_rounded,
+                                  size: 48,
+                                  color: colorScheme.onPrimaryContainer),
                             ),
                             const SizedBox(height: 20),
-                            Text(
-                              'Smart Brankas',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: colorScheme.onSurface,
-                                  ),
-                            ),
+                            Text('Smart Brankas',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: colorScheme.onSurface)),
                             const SizedBox(height: 6),
-                            Text(
-                              'Masuk ke akun Anda',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                            ),
+                            Text('Masuk ke akun Anda',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant)),
                           ],
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Input card (neumorphic)
                       NeumorphicContainer(
                         radius: 20,
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           children: [
-                            // Email field with validation
-                            TextFormField(
+                            NeumorphicTextField(
                               controller: _emailCtrl,
+                              labelText: 'Email',
+                              prefixIcon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                prefixIcon: const Icon(Icons.email_outlined),
-                                filled: true,
-                                fillColor: colorScheme.surface,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Email wajib diisi';
@@ -182,30 +158,17 @@ class _LoginScreenState extends State<LoginScreen>
                               },
                             ),
                             const SizedBox(height: 16),
-
-                            // Password field with validation
-                            TextFormField(
+                            NeumorphicTextField(
                               controller: _passCtrl,
+                              labelText: 'Password',
+                              prefixIcon: Icons.lock_outline_rounded,
                               obscureText: _obscurePass,
-                              decoration: InputDecoration(
-                                labelText: 'Password',
-                                prefixIcon:
-                                    const Icon(Icons.lock_outline_rounded),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePass
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined,
-                                  ),
-                                  onPressed: () => setState(
-                                      () => _obscurePass = !_obscurePass),
-                                ),
-                                filled: true,
-                                fillColor: colorScheme.surface,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                  borderSide: BorderSide.none,
-                                ),
+                              suffixIcon: IconButton(
+                                icon: Icon(_obscurePass
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined),
+                                onPressed: () => setState(
+                                    () => _obscurePass = !_obscurePass),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -218,53 +181,30 @@ class _LoginScreenState extends State<LoginScreen>
                               },
                             ),
                             const SizedBox(height: 16),
-
-                            // Info kecil pengganti tombol daftar
                             Align(
                               alignment: Alignment.centerRight,
-                              child: Text(
-                                'Akun baru dibuat oleh admin.',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
+                              child: Text('Akun baru dibuat oleh admin.',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: colorScheme.onSurfaceVariant)),
                             ),
                             const SizedBox(height: 8),
-
-                            // Submit button
-                            SizedBox(
-                              width: double.infinity,
-                              height: 54,
-                              child: FilledButton.icon(
-                                icon: _loading
-                                    ? const SizedBox(
-                                        width: 22,
-                                        height: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Icon(Icons.login_rounded),
-                                label: Text(
-                                  _loading ? 'Memproses...' : 'Masuk',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                onPressed: _loading ? null : _submit,
-                              ),
+                            LoadingButton(
+                              loading: _loading,
+                              onPressed: _submit,
+                              label: 'Masuk',
+                              loadingLabel: 'Memproses...',
+                              icon: Icons.login_rounded,
                             ),
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 24),
-                      Text(
-                        '© 2025 Smart Brankas',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                      ),
+                      Text('© 2025 Smart Brankas',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: colorScheme.onSurfaceVariant)),
                     ],
                   ),
                 ),

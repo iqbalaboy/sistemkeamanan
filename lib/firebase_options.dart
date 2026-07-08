@@ -57,7 +57,8 @@ class DefaultFirebaseOptions {
     appId: '1:61044104475:android:11e68c149bae32d4a807be',
     messagingSenderId: '61044104475',
     projectId: 'smartbrankas-9d384',
-    databaseURL: 'https://smartbrankas-9d384-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://smartbrankas-9d384-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'smartbrankas-9d384.firebasestorage.app',
   );
 }

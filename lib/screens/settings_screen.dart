@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../neumorphic_theme.dart';
+import '../components/info_card.dart';
+import '../components/confirmation_dialog.dart';
 
-/// A settings content widget (no Scaffold) so it can be shown inside HomeScreen
-/// while keeping the bottom navigation bar visible.
 class SettingsContent extends StatelessWidget {
   const SettingsContent({super.key});
 
   Future<void> _confirmLogout(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await ConfirmationDialog.show(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Konfirmasi Keluar'),
-        content: const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Batal')),
-          TextButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Keluar')),
-        ],
-      ),
+      title: 'Konfirmasi Keluar',
+      content: 'Apakah Anda yakin ingin keluar dari akun ini?',
+      confirmLabel: 'Keluar',
     );
 
     if (confirmed == true) {
@@ -43,7 +33,6 @@ class SettingsContent extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // small header so it's clear we're in settings
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Row(
@@ -58,56 +47,19 @@ class SettingsContent extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 8),
-
-            NeumorphicContainer(
-              radius: 14,
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline_rounded, size: 36),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Smart Brankas',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: cs.onSurface)),
-                        const SizedBox(height: 4),
-                        Text('Versi $appVersion',
-                            style: TextStyle(color: cs.onSurfaceVariant)),
-                        if (email != null) ...[
-                          const SizedBox(height: 6),
-                          Text('Login sebagai: $email',
-                              style: TextStyle(
-                                  color: cs.onSurfaceVariant, fontSize: 12)),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            InfoCard(
+              leading: const Icon(Icons.info_outline_rounded, size: 36),
+              title: 'Smart Brankas',
+              subtitle: 'Versi $appVersion${email != null ? ' • $email' : ''}',
             ),
-
             const SizedBox(height: 16),
-
-            NeumorphicContainer(
-              radius: 14,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: ListTile(
-                leading: const Icon(Icons.logout_rounded),
-                title: const Text('Keluar'),
-                subtitle: const Text('Keluar dari akun saat ini'),
-                onTap: () => _confirmLogout(context),
-              ),
+            InfoCard(
+              leading: const Icon(Icons.logout_rounded),
+              title: 'Keluar',
+              subtitle: 'Keluar dari akun saat ini',
+              onTap: () => _confirmLogout(context),
             ),
-
-            const SizedBox(height: 12),
-
-            // Footer small
             const Spacer(),
             Text('© 2025 Smart Brankas',
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
